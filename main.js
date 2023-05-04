@@ -9,26 +9,35 @@ let stephansdom = {
 
 // Karte initialisieren
 let map = L.map("map").setView([
-    stephansdom.lat, stephansdom.lng
-], 12);
-map.locate({setView: true, maxZoom: 16});
+    stephansdom.lat, 
+    stephansdom.lng], 12);
+map.locate({
+    setView: true, 
+    watch: true, 
+    maxZoom: 16
+});
 
-function onLocationFound(e) {
-    var radius = e.accuracy;
+let circle = L.circle([0, 0], 0).addTo(map);
+let marker = L.marker([0, 0]).addTo(map);
 
-    L.marker(e.latlng).addTo(map)
-        .bindPopup("You are within " + radius + " meters from this point").openPopup();
+map.on("locationfound", function (evt) {
+    console.log(evt)
+    let radius = evt.accuracy;
 
-    L.circle(e.latlng, radius).addTo(map);
-}
+    marker.setLatLng(evt.latlng);
+    marker.bindTooltip(`You are within ${Math.round(radius)} meters from this point`).openTooltip();
 
-map.on('locationfound', onLocationFound);
+    //L.circle(evt.latlng, radius).addTo(map);
+    circle.setLatLng(evt.latlng);
+    circle.setRadius(radius);
+});
 
-function onLocationError(e) {
-    alert(e.message);
-}
 
-map.on('locationerror', onLocationError);
+map.on('locationerror', function (evt){
+    console.log(evt)
+    alert(evt.message);
+});
+
 
 // Hintergrundlayer
 let layerControl = L.control.layers({
